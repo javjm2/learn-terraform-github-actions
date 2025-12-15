@@ -15,16 +15,16 @@ terraform {
   required_version = ">= 1.1.0"
 
   cloud {
-    organization = "REPLACE_ME"
+    organization = "JTestOrg"
 
     workspaces {
-      name = "gh-actions-demo"
+      name = "pc-learn-terraform"
     }
   }
 }
 
 provider "aws" {
-  region = "us-west-2"
+  region = "eu-west-2"
 }
 
 resource "random_pet" "sg" {}
