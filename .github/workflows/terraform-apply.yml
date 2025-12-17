@@ -92,8 +92,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws eks --region eu-west-2 update-kubeconfig --name $CLUSTER
-          kubectl apply -f .\webapp.yaml
-          kubectl apply -f .\webapp-service.yaml
+          ls -l
+          kubectl apply -f ./webapp.yaml
+          kubectl apply -f ./webapp-service.yaml
 
       - name: Write output to JSON
         run: kubectl get svc webapp-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' > service-name.txt
