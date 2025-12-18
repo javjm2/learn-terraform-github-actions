@@ -40,3 +40,6 @@ terraform.rc
 # End of https://www.toptal.com/developers/gitignore/api/terraform
 .idea
 .terraform.lock.hcl
+tests/__pycache__/
+test_screenshot.jpg
+__pycache__/

@@ -82,23 +82,28 @@ jobs:
 
       - name: Read Cluster Name
         run: | 
-          CLUSTER=$(cat terraform-outputs.txt)
-          echo "CLUSTER=$CLUSTER" >> $GITHUB_ENV
-          echo "Here's the $CLUSTER"
+          CLUSTER_NAME=$(cat terraform-outputs.txt)
+          echo "CLUSTER_NAME=$CLUSTER_NAME" >> $GITHUB_ENV
+          echo "Here's the $CLUSTER_NAME"
 
       - name: Deploy to EKS Cluster
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          aws eks --region eu-west-2 update-kubeconfig --name $CLUSTER
-          ls -l
-          kubectl apply -f ./webapp.yaml
-          kubectl apply -f ./webapp-service-aws.yaml
-          kubectl get svc webapp-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' > service-name.txt
+          aws eks --region eu-west-2 update-kubeconfig --name $CLUSTER_NAME
+          kubectl apply -f ./k8/webapp.yaml
+          kubectl apply -f ./k8/webapp-service.yaml
+          echo "HOSTNAME=$(kubectl get svc webapp-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')" >> $GITHUB_ENV
 
-      - name: Upload outputs artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: service-name
-          path: service-name.txt
+  ui-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout test repo
+        uses: actions/checkout@v4
+
+      - name: Run tests inside container
+        run: |
+          docker build -t selenium-tests .
+          docker run --rm -e HOSTNAME=$HOSTNAME selenium-tests
